@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = http://git.veresov.xyz/aversey/magi
+	branch = master
+	commit = 7d0b4ad61ee1e150c76b9997971582066529b72a
+	parent = 55799b81f8cd6bde37241961fc60295e7faf70ba
+	method = merge
+	cmdver = 0.4.1
