@@ -23,34 +23,36 @@ static int equrl(const char *a, const char *b)
 
 static char *scopy(const char *s)
 {
-    int   size = strlen(s) + 1;
-    char *res  = malloc(size);
-    memcpy(res, s, size);
+    int   len = s ? strlen(s) : 0;
+    char *res  = malloc(len + 1);
+    if (s) memcpy(res, s, len);
+    res[len] = 0;
     return res;
 }
 
 static char *scat(const char *a, const char *b)
 {
-    int   alen = strlen(a);
-    int   blen = strlen(b);
-    char *res  = malloc(alen + blen);
+    int   alen = a ? strlen(a) : 0;
+    int   blen = b ? strlen(b) : 0;
+    char *res  = malloc(alen + blen + 1);
     memcpy(res, a, alen);
-    memcpy(res + alen, b, blen + 1);
+    memcpy(res + alen, b, blen);
+    res[alen + blen] = 0;
     return res;
 }
 
 
 static char *nextstyle(const char *curstyle)
 {
-    DIR *d = opendir("data/styles");
+    DIR *d = opendir("/var/web/veresov.pro/public/styles");
     struct dirent *de;
     struct dirent *res = readdir(d);
+    while (res->d_name[0] == '.') res = readdir(d);
     while ((de = readdir(d)) != 0) {
-        if (!strcmp(de->d_name, curstyle)) {
-            if ((de = readdir(d)) != 0) {
-                res = de;
-            }
-            break;
+        if (de->d_name[0] == '.') continue;
+        if (strcmp(de->d_name, curstyle)) {
+            if (de->d_name[0] != '.') res = de;
+            else break;
         }
     }
     closedir(d);
@@ -77,32 +79,40 @@ static void switchstyle(const char *style, const char *script, const char *r)
     free(stl.path);
 }
 
-static void getstyle(const char *style)
+static void getstyle(const char *style, const char *script)
 {
     char  c;
-    char *p = scat("data/styles/", style);
-    FILE *f = fopen(p, "r");
+    char *p   = scat("/var/web/veresov.pro/public/styles/", style);
+    FILE *f   = fopen(p, "r");
+    struct magi_cookie   stl = { 0, 0, 0, 0, 0 };
     struct magi_response res;
     magi_response_init(&res);
+    stl.name = scopy("style");
+    stl.data = scopy(style);
+    stl.path = scopy(script);
+    magi_response_cookie_complex(&res, &stl);
     magi_response_content_type(&res, "text/css");
     magi_response_send(&res);
     magi_response_free(&res);
-    while (fread(&c, 1, 1, f) != 1) {
+    while (fread(&c, 1, 1, f) == 1) {
         fwrite(&c, 1, 1, stdout);
     }
     fclose(f);
     free(p);
+    free(stl.name);
+    free(stl.data);
+    free(stl.path);
 }
 
 
 static void response(struct magi_request *req)
 {
     const char *curstyle = magi_request_cookie(req, "style");
-    if (equrl(req->path, "switch")) {
-        switchstyle(curstyle, req->script,
-                    magi_request_param(req, "r"));
-    } else if (equrl(req->path, "style.css")) {
-        getstyle(curstyle);
+    if (!curstyle) curstyle = "default.css";
+    if (equrl(req->path, "/switch")) {
+        switchstyle(curstyle, req->script, magi_request_param(req, "r"));
+    } else if (equrl(req->path, "/style.css")) {
+        getstyle(curstyle, req->script);
     }
 }
 
