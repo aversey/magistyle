@@ -31,7 +31,7 @@ magistyle: main.c $(MAGI)
 	$(COMPILE) $(CFLAGS) $(INCDIRS) $< $(LIBDIRS) $(LIBS) -o $@
 
 $(MAGI):
-	cd magi; make
+	cd dep/magi; make
 
 .PHONY: clean
 clean:
