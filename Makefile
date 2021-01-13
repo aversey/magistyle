@@ -26,7 +26,7 @@ MAGI     = dep/magi/build/libmagi.a
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #     Targets
-# Produce cart CGI:
+# Produce style switch CGI:
 magistyle: main.c $(MAGI)
 	$(COMPILE) $(CFLAGS) $(INCDIRS) $< $(LIBDIRS) $(LIBS) -o $@
 
