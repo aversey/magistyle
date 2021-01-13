@@ -82,8 +82,8 @@ static void switchstyle(const char *style, const char *script, const char *r)
 static void getstyle(const char *style, const char *script)
 {
     char  c;
-    char *p   = scat("/var/web/veresov.pro/public/styles/", style);
-    FILE *f   = fopen(p, "r");
+    char *p = scat("/var/web/veresov.pro/public/styles/", style);
+    FILE *f = fopen(p, "r");
     struct magi_cookie   stl = { 0, 0, 0, 0, 0 };
     struct magi_response res;
     magi_response_init(&res);
@@ -108,7 +108,7 @@ static void getstyle(const char *style, const char *script)
 static void response(struct magi_request *req)
 {
     const char *curstyle = magi_request_cookie(req, "style");
-    if (!curstyle) curstyle = "default.css";
+    if (!curstyle || strchr(curstyle, '/')) curstyle = "default.css";
     if (equrl(req->path, "/switch")) {
         switchstyle(curstyle, req->script, magi_request_param(req, "r"));
     } else if (equrl(req->path, "/style.css")) {
